@@ -181,7 +181,7 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
             InsertNode(newRoot, 0, currsplit.left);
             int size = currsplit.promotekey.size;
             currsplit.promotekey.addr = string_conv(currsplit.promotekey.addr, size);
-            currsplit.promotekey.addr = (uint16_t)size;
+            currsplit.promotekey.size = (uint16_t)size;
             InsertKeyStd(newRoot, 0, currsplit.promotekey.addr, currsplit.promotekey.size);
             InsertNode(newRoot, 1, currsplit.right);
 
