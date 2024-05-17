@@ -179,9 +179,9 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
 
 
             InsertNode(newRoot, 0, currsplit.left);
-            int size = currsplit.promotekey.size;
-            currsplit.promotekey.addr = string_conv(currsplit.promotekey.addr, size);
-            currsplit.promotekey.size = (uint16_t)size;
+            // int size = currsplit.promotekey.size;
+            // currsplit.promotekey.addr = string_conv(currsplit.promotekey.addr, size);
+            // currsplit.promotekey.size = (uint16_t)size;
             InsertKeyStd(newRoot, 0, currsplit.promotekey.addr, currsplit.promotekey.size);
             InsertNode(newRoot, 1, currsplit.right);
 
@@ -199,9 +199,9 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
     }
     else {
         Item *newkey = &(childsplit->promotekey);
-        int size = newkey->size;
-        newkey->addr = string_conv(newkey->addr, size);
-        newkey->size = (uint16_t)size;
+        // int size = newkey->size;
+        // newkey->addr = string_conv(newkey->addr, size);
+        // newkey->size = (uint16_t)size;
         int insertpos;
         bool equal = false;
         if (this->head_comp) {
@@ -234,9 +234,9 @@ void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int
         splitReturn_new split = split_leaf(leaf, key, keylen);
         if (leaf == _root) {
             Node *newRoot = new Node();
-            int size = split.promotekey.size;
-            split.promotekey.addr = string_conv(split.promotekey.addr, size);
-            split.promotekey.size = (uint16_t)size;
+            // int size = split.promotekey.size;
+            // split.promotekey.addr = string_conv(split.promotekey.addr, size);
+            // split.promotekey.size = (uint16_t)size;
             InsertNode(newRoot, 0, split.left);
             InsertKeyStd(newRoot, 0, split.promotekey.addr, split.promotekey.size);
             InsertNode(newRoot, 1, split.right);
