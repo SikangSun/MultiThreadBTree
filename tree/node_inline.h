@@ -102,24 +102,27 @@ inline void CopyToNewPageStd(Node *nptr, int low, int high, char *newbase, uint1
                                        - (newidx + 1) * sizeof(Stdhead));
         int key_len = oldhead->key_len;
 
-
         #ifdef PV
-            char *presuf = new char[oldhead->key_len + 1]; //extract entire key
-            presuf[oldhead->key_len + 1] = '\0';
+            char *presuf = new char[key_len + 1 + PV_SIZE]; //extract entire key, invariant holds
+            memset(presuf, 0, key_len + 1 + PV_SIZE); //pad for copy purposes
             memcpy(presuf, oldhead->key_prefix, PV_SIZE);
-            memcpy(presuf + PV_SIZE, PageOffset(nptr, oldhead->key_offset), oldhead->key_len < PV_SIZE ? 0 :  oldhead->key_len);
-            int numOfNull = 0;
-            for (int i = 0; i < PV_SIZE; i++) {
+            if (oldhead->key_len > PV_SIZE) memcpy(presuf + PV_SIZE, PageOffset(nptr, oldhead->key_offset), key_len - PV_SIZE);
 
+            int nullbytenum = cutoff;
+
+            for (int i = 0, int j = 0; i < oldhead->key_len; i++) {
+                if (presuf[i] == '\0') nullbytenum++;
             }
-            newhead->key_len = oldhead->key_len - cutoff;
+            int truncate = (nullbytenum / PV_SIZE) * PV_SIZE;
+            int newkeylen = oldhead->key_len - truncate;
+            newhead->key_len = newkeylen;
             newhead->key_offset = top;
             memset(newhead->key_prefix, 0, PV_SIZE); //cutoff can't be longer than length right? yes
-            strncpy(newhead->key_prefix, presuf + cutoff, min(PV_SIZE, (int)newhead->key_len));
+            memcpy(newhead->key_prefix, presuf + cutoff, PV_SIZE); //at least 4 bytes
 
+            int sufLength = newkeylen - PV_SIZE; if (sufLength < 0) sufLength = 0;
+            memcpy(newbase + top, presuf + cutoff + PV_SIZE, sufLength + 1); //ends at nullbyte, even if 0
 
-            int sufLength = oldhead->key_len - cutoff - PV_SIZE; if (sufLength < 0) sufLength = 0;
-            strncpy(newbase + top, presuf + cutoff + PV_SIZE, sufLength); //ends at nullbyte, even if 0
             top += sufLength + 1; //if key can fit into prefix, then there will be a null_byte place holder
             delete[] presuf;
         #else
@@ -149,8 +152,8 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
     int mod = keylen % PV_SIZE;
     keylen = keylen + (mod > 0 ? PV_SIZE - mod : 0);
 
-    char *result = new char[keylen + 1];
-    memset(result, 0, keylen + 1);
+    char *result = new char[keylen + PV_SIZE + 1]; //pad zeroes
+    memset(result, 0, keylen + 1 + PV_SIZE);
     strcpy(result, key);
     char *pointer = result;
     for (int i = 0; i < keylen; i += PV_SIZE, pointer += PV_SIZE) {
@@ -160,7 +163,7 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
     return result;
 }
 
-// inline char* round_fixed_length(const char* key, int &keylen) {
+// inline char* round_fixed_length(const char* key, int &keylen) {//input is normalized but breaks invariant
 //     int mod = keylen % PV_SIZE;
 //     if (mod == 0) return (char*)key;
 //     int oglen = keylen;
@@ -182,7 +185,7 @@ inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//as
     memcpy(result, prefix, PV_SIZE);
     if (roundedkeylen > PV_SIZE) memcpy(result + PV_SIZE, suffix, roundedkeylen - PV_SIZE);
     for (int i = 0; i < nullbytenum; i++) {
-        result[roundedkeylen - PV_SIZE + i] = '\0';
+        result[roundedkeylen - PV_SIZE + i] = '\0'; //overwrite last word with null bytes
     } 
     keylen = roundedkeylen;
     return result;
