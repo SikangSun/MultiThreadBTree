@@ -381,7 +381,7 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         pkey_buf = construct_promotekey_head(node, head_fr->key_prefix, firstright, pkey_len);
     }
     else {
-        pkey_buf = construct_promotekey(header_fr->key_prefix, firstright, pkey_len);
+        pkey_buf = construct_promotekey(head_fr->key_prefix, firstright, pkey_len);
     }
     newsplit.promotekey.addr = pkey_buf;
     newsplit.promotekey.size = pkey_len;
