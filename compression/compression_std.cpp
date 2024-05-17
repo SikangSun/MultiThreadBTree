@@ -26,7 +26,7 @@ char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix,
     memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
     memcpy(right, rightprefix, PV_SIZE);
     memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
-    left[len_ll] = '\0'; right[len_fr] = "\0";
+    left[len_ll] = '\0'; right[len_fr] = '\0';
     return tail_compress(left, right, len_ll, len_fr);
 }
 
@@ -45,7 +45,7 @@ int tail_compress_length(char *leftprefix, char *rightprefix, const char *leftsu
     memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
     memcpy(right, rightprefix, PV_SIZE);
     memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
-    left[len_ll] = '\0'; right[len_fr] = "\0";
+    left[len_ll] = '\0'; right[len_fr] = '\0';
     return tail_compress_length(left, right, len_ll, len_fr);
 }
 
