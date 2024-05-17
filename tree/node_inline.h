@@ -110,7 +110,7 @@ inline void CopyToNewPageStd(Node *nptr, int low, int high, char *newbase, uint1
 
             int nullbytenum = cutoff;
 
-            for (int i = 0, j = 0; i < keylen; i++) {
+            for (int i = 0; i < key_len; i++) {
                 if (presuf[i] == '\0') nullbytenum++;
             }
             int truncate = (nullbytenum / PV_SIZE) * PV_SIZE;
