@@ -375,29 +375,13 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
 
     Stdhead *head_fr = GetHeaderStd(node, split);
     char *firstright = PageOffset(node, head_fr->key_offset);
-    int pkey_len;
+    int pkey_len = head_fr->key_len;
     char *pkey_buf;
-    if (this->head_comp && node->prefix->size) { //promote key
-        pkey_len = node->prefix->size + head_fr->key_len;
-        pkey_buf = new char[pkey_len + 1];
-        strncpy(pkey_buf, node->prefix->addr, node->prefix->size);
-        #ifdef PV
-            memcpy(pkey_buf + node->prefix->size, head_fr->key_prefix, PV_SIZE);
-            memcpy(pkey_buf + PV_SIZE + node->prefix->size, firstright, head_fr->key_len - PV_SIZE);
-        #else
-            strcpy(pkey_buf + node->prefix->size, firstright);
-        #endif
+    if (this->head_comp && node->prefix->size) {
+        pkey_buf = construct_promotekey_head(node, header->key_prefix, firstright, pkey_len)
     }
     else {
-        pkey_len = head_fr->key_len;
-        pkey_buf = new char[pkey_len + 1];
-        #ifdef PV
-            memcpy(pkey_buf, head_fr->key_prefix, PV_SIZE);
-            memcpy(pkey_buf + PV_SIZE, firstright, head_fr->key_len - PV_SIZE);
-            pkey_buf[pkey_len] = '\0';
-        #else
-            strcpy(pkey_buf, firstright);
-        #endif
+        pkey_buf = construct_promotekey(head_fr->key_prefix, firstright, pkey_len);
     }
     newsplit.promotekey.addr = pkey_buf;
     newsplit.promotekey.size = pkey_len;
@@ -553,51 +537,21 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
                                      head_ll->key_len, head_fr->key_len);
 #endif
         if (this->head_comp && node->prefix->size) {
-            int pfxlen = node->prefix->size;
-            s = new char[s_len + pfxlen + 1];
-            strncpy(s, node->prefix->addr, pfxlen);
-            #ifdef PV
-                memcpy(s + pfxlen, head_fr->key_prefix, PV_SIZE);
-                if (s_len > PV_SIZE) memcpy(s + pfxlen + PV_SIZE, firstright, s_len - PV_SIZE);
-            #else
-                strncpy(s + pfxlen, firstright, s_len);
-            #endif
-            s_len += pfxlen;
+            s =construct_promotekey_head(node, header->key_prefix, firstright, s_len)
         }
         else {
-            s = new char[s_len + 1];
-            #ifdef PV
-                memcpy(s, head_fr->key_prefix, PV_SIZE);
-                if (s_len > PV_SIZE) memcpy(s + PV_SIZE, firstright, s_len - PV_SIZE); //copy until nullbyte
-            #else
-                strncpy(s, firstright, s_len);
-            #endif
+            s = construct_promotekey(head_fr->key_prefix, firstright, s_len);
         }
-        s[s_len] = '\0';
+
     }
     else {
+        s_len = head_fr->key_len;
         if (this->head_comp && node->prefix->size) {
-            s_len = node->prefix->size + head_fr->key_len;
-            s = new char[s_len + 1];
-            strncpy(s, node->prefix->addr, node->prefix->size);
-            #ifdef PV
-                memcpy(s + node->prefix->size, head_fr->key_prefix, PV_SIZE); //prefix
-                memcpy(s + PV_SIZE + node->prefix->size, firstright, head_fr->key_len - PV_SIZE); //suffix
-            #else
-                strcpy(s + node->prefix->size, firstright);
-            #endif
+            s = construct_promotekey_head(node, header->key_prefix, firstright, s_len)
         }
         else {
-            s_len = head_fr->key_len;
-            s = new char[s_len + 1];
-            #ifdef PV
-                memcpy(s, head_fr->key_prefix,PV_SIZE);
-                memcpy(s + PV_SIZE, firstright, head_fr->key_len - PV_SIZE); //copy until nullbyte
-            #else
-                strcpy(s, firstright);
-            #endif
+            s = construct_promotekey(head_fr->key_prefix, firstright, s_len);
         }
-        s[s_len] = '\0';
     }
     newsplit.promotekey.addr = s;
     newsplit.promotekey.size = s_len;

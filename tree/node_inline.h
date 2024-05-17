@@ -156,6 +156,49 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
     return result;
 }
 
+inline char* round_fixed_length(const char* key, int &keylen) {
+    int mod = keylen % PV_SIZE;
+    if (mod == 0) return key;
+    int oglen = keylen;
+    keylen = keylen + mod;
+    char *result = new char[keylen + 1];
+    memset(result, 0, keylen + 1);
+    memcpy(result, key, oglen); //only last word needs word_conv
+    word_conv_store((result + keylen - PV_SIZE), (result + keylen - PV_SIZE));
+    delete[] key;
+    return result;
+}
+
+inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
+    int mod = keylen % PV_SIZE;
+    int roundedkeylen = keylen + (mod > 0 ? mod : 0);
+    char *result = new char[roundedkeylen + 1];
+    memset(result, 0, roundedkeylen + 1);
+    memcpy(result, prefix, PV_SIZE);
+    if (roundedkeylen > PV_SIZE) memcpy(result + PV_SIZE, suffix, roundedkeylen - PV_SIZE);
+
+    keylen = roundedkeylen;
+    return result;
+}
+
+inline char* construct_promotekey_head(Node* cursor, char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
+    int size = cursor->prefix->size;
+    int mod = (size + keylen) % PV_SIZE;
+    int roundedkeylen = keylen + (mod > 0 ? mod : 0);
+    char *result = new char[roundedkeylen + 1];
+    memset(result, 0, roundedkeylen + 1);
+    memset(result, cursor->prefix->addr, size);
+    memcpy(result + size, prefix, PV_SIZE);
+    if (roundedkeylen > PV_SIZE + size) memcpy(result + size + PV_SIZE, suffix, roundedkeylen - PV_SIZE - size);
+    //copy until the end length
+    keylen = roundedkeylen;
+    return result;
+}
+
+inline char* construct_promotekey(char* dest, Node* node, char* prefix, char* suffix, int &keylen) {//head_comp
+    int len = keylen + 
+
+}
 
 inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) {
     int cmp = *(int*)key - *(int*)header->key_prefix;
