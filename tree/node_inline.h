@@ -156,18 +156,18 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
     return result;
 }
 
-inline char* round_fixed_length(const char* key, int &keylen) {
-    int mod = keylen % PV_SIZE;
-    if (mod == 0) return (char*)key;
-    int oglen = keylen;
-    keylen = keylen + mod;
-    char *result = new char[keylen + 1];
-    memset(result, 0, keylen + 1);
-    memcpy(result, key, oglen); //only last word needs word_conv
-    word_conv_store((result + keylen - PV_SIZE), (result + keylen - PV_SIZE));
-    delete[] key;
-    return result;
-}
+// inline char* round_fixed_length(const char* key, int &keylen) {
+//     int mod = keylen % PV_SIZE;
+//     if (mod == 0) return (char*)key;
+//     int oglen = keylen;
+//     keylen = keylen + mod;
+//     char *result = new char[keylen + 1];
+//     memset(result, 0, keylen + 1);
+//     memcpy(result, key, oglen); //only last word needs word_conv
+//     word_conv_store((result + keylen - PV_SIZE), (result + keylen - PV_SIZE));
+//     delete[] key;
+//     return result;
+// }
 
 inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
     int mod = keylen % PV_SIZE;
