@@ -1,6 +1,7 @@
 #include "btree_std.h"
 #include "../compression/compression_std.cpp"
 
+
 // Initialise the BPTree Node
 BPTree::BPTree(bool head_compression, bool tail_compression) {
     _root = new Node();
@@ -12,6 +13,7 @@ BPTree::BPTree(bool head_compression, bool tail_compression) {
     cmp_length = 0;
 #endif
 }
+
 
 void deletefrom(Node *node) {
     if (node->IS_LEAF)
@@ -25,20 +27,24 @@ void deletefrom(Node *node) {
     return;
 }
 
+
 // Destructor of BPTreePkB tree
 BPTree::~BPTree() {
     deletefrom(_root);
 }
+
 
 // Function to get the rootNode
 Node *BPTree::getRoot() {
     return _root;
 }
 
+
 // Function to find any element
 // in B+ Tree
 int BPTree::search(const char *key) {
     int keylen = strlen(key);
+    key = string_conv(key, keylen);
     Node *leaf = search_leaf_node(_root, key, keylen);
     if (leaf == nullptr)
         return -1;
@@ -51,10 +57,12 @@ int BPTree::search(const char *key) {
     }
 }
 
+
 // Function to peform range query on B+Tree
 int BPTree::searchRange(const char *kmin, const char *kmax) {
     int min_len = strlen(kmin);
     int max_len = strlen(kmax);
+
 
     Node *leaf = search_leaf_node(_root, kmin, min_len);
     if (leaf == nullptr)
@@ -71,6 +79,7 @@ int BPTree::searchRange(const char *kmin, const char *kmax) {
             continue;
         }
 
+
         Stdhead *head_pos = GetHeaderStd(leaf, pos);
         if (char_cmp_new(PageOffset(leaf, head_pos->key_offset), kmax,
                          head_pos->key_len, max_len)
@@ -82,9 +91,11 @@ int BPTree::searchRange(const char *kmin, const char *kmax) {
     return entries;
 }
 
+
 int BPTree::searchRangeHead(const char *kmin, const char *kmax) {
     int min_len = strlen(kmin);
     int max_len = strlen(kmax);
+
 
     Node *leaf = search_leaf_node(_root, kmin, min_len);
     if (leaf == nullptr)
@@ -125,6 +136,7 @@ int BPTree::searchRangeHead(const char *kmin, const char *kmax) {
                 break;
         }
 
+
         Stdhead *head_pos = GetHeaderStd(leaf, pos);
         if (char_cmp_new(PageOffset(leaf, head_pos->key_offset),
                          kmax + leaf->prefix->size, head_pos->key_len, max_len - leaf->prefix->size)
@@ -135,20 +147,23 @@ int BPTree::searchRangeHead(const char *kmin, const char *kmax) {
         strcpy(decomp_key + leaf->prefix->size, PageOffset(leaf, head_pos->key_offset));
         delete decomp_key;
 
+
         entries++;
         pos++;
     }
     return entries;
 }
 
+
 void BPTree::insert(char *x) {
     int keylen = strlen(x);
-
+    x = string_conv(x, keylen);
     Node *search_path[max_level];
     int path_level = 0;
     Node *leaf = search_leaf_node_for_insert(_root, x, keylen, search_path, path_level);
     insert_leaf(leaf, search_path, path_level, x, keylen);
 }
+
 
 void BPTree::insert_nonleaf(Node *node, Node **path,
                             int parentlevel, splitReturn_new *childsplit) {
@@ -162,9 +177,11 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
         if (node == _root) {
             Node *newRoot = new Node();
 
+
             InsertNode(newRoot, 0, currsplit.left);
             InsertKeyStd(newRoot, 0, currsplit.promotekey.addr, currsplit.promotekey.size);
             InsertNode(newRoot, 1, currsplit.right);
+
 
             newRoot->IS_LEAF = false;
             _root = newRoot;
@@ -198,10 +215,12 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
             InsertKeyStd(node, insertpos, newkey->addr, newkey->size);
         }
 
+
         // Insert the new childsplit.right into node->ptrs[insertpos + 1]
         InsertNode(node, insertpos + 1, childsplit->right);
     }
 }
+
 
 void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int keylen) {
     // TODO: modify check split to make sure the new key can always been inserted
@@ -210,9 +229,11 @@ void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int
         if (leaf == _root) {
             Node *newRoot = new Node();
 
+
             InsertNode(newRoot, 0, split.left);
             InsertKeyStd(newRoot, 0, split.promotekey.addr, split.promotekey.size);
             InsertNode(newRoot, 1, split.right);
+
 
             newRoot->IS_LEAF = false;
             _root = newRoot;
@@ -236,6 +257,7 @@ void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int
             insertpos = search_insert_pos(leaf, key, keylen, 0, leaf->size - 1, equal);
         }
 
+
         // always insert no matter equal or not
         if (this->head_comp) {
             char *key_comp = key + leaf->prefix->size;
@@ -246,6 +268,7 @@ void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int
         }
     }
 }
+
 
 #ifdef DUPKEY
 int BPTree::split_point(vector<Key_c> allkeys) {
@@ -273,6 +296,7 @@ int BPTree::split_point(vector<Key_c> allkeys) {
     }
     return bestsplit;
 }
+
 
 #else
 int BPTree::split_point(Node *node) {
@@ -305,12 +329,14 @@ int BPTree::split_point(Node *node) {
 }
 #endif
 
+
 splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *childsplit) {
     splitReturn_new newsplit;
     const char *newkey = childsplit->promotekey.addr;
     uint16_t newkey_len = childsplit->promotekey.size;
     int insertpos;
     bool equal = false;
+
 
     if (this->head_comp) {
         insertpos = search_insert_pos(node, newkey + node->prefix->size,
@@ -320,6 +346,7 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
     else {
         insertpos = search_insert_pos(node, newkey, newkey_len, 0, node->size - 1, equal);
     }
+
 
     // Non-leaf nodes won't have duplicates,
     // so always insert newkey into the page for split
@@ -331,10 +358,13 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         InsertKeyStd(node, insertpos, newkey, newkey_len);
     }
 
+
     // Insert the new right node to its parent
     InsertNode(node, insertpos + 1, childsplit->right);
 
+
     int split = split_point(node);
+
 
     Stdhead *head_fr = GetHeaderStd(node, split);
     char *firstright = PageOffset(node, head_fr->key_offset);
@@ -365,27 +395,33 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
     newsplit.promotekey.size = pkey_len;
     newsplit.promotekey.newallocated = true;
 
+
     // Copy the two parts into new pages
     Node *right = new Node();
     char *left_base = NewPage();
     SetEmptyPage(left_base);
     uint16_t left_top = 0;
 
+
     if (this->head_comp && pos >= 0) {
         // when pos < 0, it means we are spliting the root
+
 
         uint16_t leftprefix_len =
             head_compression_find_prefix_length(node->lowkey, &(newsplit.promotekey));
         uint16_t rightprefix_len =
             head_compression_find_prefix_length(&(newsplit.promotekey), node->highkey);
 
+
         CopyToNewPageStd(node, 0, split, left_base,
                          leftprefix_len - node->prefix->size, left_top);
+
 
         // if (strcmp(node->highkey->addr, MAXHIGHKEY) != 0) {
         if (node->highkey->size != 0) {
             CopyToNewPageStd(node, split + 1, node->size, right->base,
                              rightprefix_len - node->prefix->size, right->space_top);
+
 
             char *newpfx = new char[rightprefix_len + 1];
             strncpy(newpfx, newsplit.promotekey.addr, rightprefix_len);
@@ -414,32 +450,40 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         CopyToNewPageStd(node, split + 1, node->size, right->base, 0, right->space_top);
     }
 
+
     // Separate the ptrs
     vector<Node *> leftptrs;
     vector<Node *> rightptrs;
+
 
     copy(node->ptrs.begin(), node->ptrs.begin() + split + 1,
          back_inserter(leftptrs));
     copy(node->ptrs.begin() + split + 1, node->ptrs.end(),
          back_inserter(rightptrs));
 
+
     right->size = node->size - (split + 1);
     right->IS_LEAF = false;
 
+
     right->ptrs = rightptrs;
     right->ptr_cnt = node->size - split;
+
 
     node->size = split;
     node->space_top = left_top;
     UpdateBase(node, left_base);
 
+
     node->ptrs = leftptrs;
     node->ptr_cnt = split + 1;
+
 
     // set key bound
     right->highkey = new Item(*node->highkey);
     node->highkey = new Item(newsplit.promotekey);
     right->lowkey = new Item(newsplit.promotekey);
+
 
     // Set next pointers
     Node *next = node->next;
@@ -449,11 +493,14 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         next->prev = right;
     node->next = right;
 
+
     newsplit.left = node;
     newsplit.right = right;
 
+
     return newsplit;
 }
+
 
 splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
     splitReturn_new newsplit;
@@ -468,6 +515,7 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         insertpos = search_insert_pos(node, newkey, newkey_len, 0, node->size - 1, equal);
     }
 
+
     // insert the new key into the page for split
     if (this->head_comp) {
         char *key_comp = newkey + node->prefix->size;
@@ -477,7 +525,9 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         InsertKeyStd(node, insertpos, newkey, newkey_len);
     }
 
+
     int split = split_point(node);
+
 
     // calculate the separator
     Stdhead *head_fr = GetHeaderStd(node, split);
@@ -500,7 +550,7 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
             strncpy(s, node->prefix->addr, pfxlen);
             #ifdef PV
                 strncpy(s + pfxlen, head_fr->key_prefix, min(s_len, PV_SIZE));
-                if (s_len > PV_SIZE) strncpy(s + pfxlen + PV_SIZE, firstright, s_len - PV_SIZE); 
+                if (s_len > PV_SIZE) strncpy(s + pfxlen + PV_SIZE, firstright, s_len - PV_SIZE);
             #else
                 strncpy(s + pfxlen, firstright, s_len);
             #endif
@@ -544,10 +594,12 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
     newsplit.promotekey.size = s_len;
     newsplit.promotekey.newallocated = true;
 
+
     // Copy the two parts into new pages
     char *left_base = NewPage();
     SetEmptyPage(left_base);
     uint16_t left_top = 0;
+
 
     if (this->head_comp) {
         uint16_t leftprefix_len =
@@ -555,10 +607,12 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         uint16_t rightprefix_len =
             head_compression_find_prefix_length(&(newsplit.promotekey), node->highkey);
 
+
         CopyToNewPageStd(node, 0, split, left_base,
                          leftprefix_len - node->prefix->size, left_top);
         CopyToNewPageStd(node, split, node->size, right->base,
                          rightprefix_len - node->prefix->size, right->space_top);
+
 
         char *l_pfx = new char[leftprefix_len + 1];
         strncpy(l_pfx, node->lowkey->addr, leftprefix_len);
@@ -566,6 +620,7 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         char *r_pfx = new char[rightprefix_len + 1];
         strncpy(r_pfx, newsplit.promotekey.addr, rightprefix_len);
         r_pfx[rightprefix_len] = '\0';
+
 
         UpdatePfxItem(node, l_pfx, leftprefix_len, true);
         UpdatePfxItem(right, r_pfx, rightprefix_len, true);
@@ -577,14 +632,17 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
     right->size = node->size - split;
     right->IS_LEAF = true;
 
+
     node->size = split;
     node->space_top = left_top;
     UpdateBase(node, left_base);
+
 
     // set key bound
     right->highkey = new Item(*node->highkey);
     node->highkey = new Item(newsplit.promotekey);
     right->lowkey = new Item(newsplit.promotekey);
+
 
     // Set next pointers
     Node *next = node->next;
@@ -594,11 +652,14 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         next->prev = right;
     node->next = right;
 
+
     newsplit.left = node;
     newsplit.right = right;
 
+
     return newsplit;
 }
+
 
 bool BPTree::check_split_condition(Node *node, int keylen) {
     // split if the allocated page is full
@@ -612,42 +673,40 @@ bool BPTree::check_split_condition(Node *node, int keylen) {
         return false;
 }
 
+
 int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low, int high,
                               bool &equal) {
     while (low <= high) {
         int mid = low + (high - low) / 2;
 
+
         Stdhead *header = GetHeaderStd(cursor, mid);
 
+
         #ifdef PV
-        long cmp = word_cmp(header, key, keylen);
-        if (cmp == 0) {
-            cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
-                               keylen, header->key_len);
-        }
+        long cmp = word_cmp(header, key, keylen, cursor);
         #else
         int cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
                                keylen, header->key_len);
         #endif
+
 
         if (cmp == 0) {
             equal = true;
             while (mid < high) {
                 Stdhead *header = GetHeaderStd(cursor, mid + 1);
 
+
                 #ifdef PV
                     long cmp = word_cmp(header, key, keylen);
                     if (cmp != 0) break;
-                    else if (char_cmp_new(key, PageOffset(cursor, header->key_offset),
-                                        keylen, header->key_len)) {
-                        break;
-                    }
                 #else
                     if (char_cmp_new(key, PageOffset(cursor, header->key_offset),
                                     keylen, header->key_len))
                         // return the last one if keys are equal
                     break;
                 #endif
+
 
                 mid++;
             }
@@ -661,12 +720,14 @@ int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low
     return high + 1;
 }
 
+
 Node *BPTree::search_leaf_node(Node *searchroot, const char *key, int keylen) {
     // Tree is empty
     if (searchroot == NULL) {
         cout << "Tree is empty" << endl;
         return nullptr;
     }
+
 
     Node *cursor = searchroot;
     // Till we reach leaf node
@@ -684,6 +745,7 @@ Node *BPTree::search_leaf_node(Node *searchroot, const char *key, int keylen) {
     return cursor;
 }
 
+
 Node *BPTree::search_leaf_node_for_insert(Node *searchroot, const char *key, int keylen,
                                           Node **path, int &path_level) {
     // Tree is empty
@@ -691,6 +753,7 @@ Node *BPTree::search_leaf_node_for_insert(Node *searchroot, const char *key, int
         cout << "Tree is empty" << endl;
         return nullptr;
     }
+
 
     Node *cursor = searchroot;
     bool equal = false;
@@ -708,8 +771,10 @@ Node *BPTree::search_leaf_node_for_insert(Node *searchroot, const char *key, int
         cursor = cursor->ptrs[pos];
     }
 
+
     return cursor;
 }
+
 
 #ifdef TRACK_DISTANCE
 int BPTree::char_cmp_count(const char *a, const char *b, int alen, int blen) {
@@ -731,20 +796,17 @@ int BPTree::char_cmp_count(const char *a, const char *b, int alen, int blen) {
 }
 #endif
 
+
 // TODO:merge these search function
 int BPTree::search_in_node(Node *cursor, const char *key, int keylen,
                            int low, int high, bool isleaf) {
     while (low <= high) {
         int mid = low + (high - low) / 2;
         Stdhead *header = GetHeaderStd(cursor, mid);
-        
+       
 #ifndef TRACK_DISTANCE
     #ifdef PV
         long cmp = word_cmp(header, key, keylen);
-        if (cmp == 0) {
-            cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
-                               keylen, header->key_len);
-        }
     #else
         int cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
                                keylen, header->key_len);
@@ -763,30 +825,15 @@ int BPTree::search_in_node(Node *cursor, const char *key, int keylen,
     return isleaf ? -1 : high + 1;
 }
 #ifdef PV
-long BPTree::word_cmp(Stdhead* header,const char* key, int keylen) {
-    // char word[8] = {0};
-    // char prefix[8] = {0};
-    // for (int i = 0; i < PV_SIZE; i++) 
-    //     prefix[i] = header->key_prefix[PV_SIZE - 1 - i];
-    // for (int i = 0; i < min(keylen, PV_SIZE); i++)
-    //     word[i] = key[min(keylen, PV_SIZE) - 1 - i];
-    // return *(long*)word - *(long*)prefix;
-    int cmp_len = min(PV_SIZE, keylen);
-    // int idx = *matchp;
-    for (int idx = 0; idx < cmp_len; ++idx) {
-        int cmp = key[idx] - header->key_prefix[idx];
-        if (cmp != 0)
-            return cmp;
-    }
-    /* Contents are equal up to the smallest length. */
-    return 0;
-}
+
+
 #endif
 /*
 ================================================
 =============statistic function & printer=======
 ================================================
 */
+
 
 void BPTree::getSize(Node *cursor, int &numNodes, int &numNonLeaf, int &numKeys,
                      int &totalBranching, unsigned long &totalKeySize,
@@ -810,6 +857,7 @@ void BPTree::getSize(Node *cursor, int &numNodes, int &numNonLeaf, int &numKeys,
         totalPrefixSize += this->head_comp * pfxsize;
         totalKeySize += currSize + this->head_comp * pfxsize;
 
+
         numNodes += 1;
         if (!cursor->IS_LEAF) {
             totalBranching += cursor->ptr_cnt;
@@ -821,6 +869,7 @@ void BPTree::getSize(Node *cursor, int &numNodes, int &numNonLeaf, int &numKeys,
         }
     }
 }
+
 
 int BPTree::getHeight(Node *cursor) {
     if (cursor == NULL)
@@ -834,11 +883,13 @@ int BPTree::getHeight(Node *cursor) {
     return maxHeight + 1;
 }
 
+
 void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
                        bool isLast) {
     // Condition when node is None
     if (x == NULL)
         return;
+
 
     // Loop to print the depths of the
     // current node
@@ -852,6 +903,7 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
                  << " ";
         }
 
+
         // Otherwise print
         // the blank spaces
         else {
@@ -862,12 +914,14 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
         }
     }
 
+
     // Condition when the current
     // node is the rootnode
     if (depth == 0) {
         printKeys(x, compressed);
         cout << endl;
     }
+
 
     // Condition when the node is
     // the last node of
@@ -876,6 +930,7 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
         cout << "+--- ";
         printKeys(x, compressed);
         cout << endl;
+
 
         // No more childrens turn it
         // to the non-exploring depth
@@ -886,6 +941,7 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
         printKeys(x, compressed);
         cout << endl;
     }
+
 
     for (auto i = 0; i < x->ptr_cnt; i++)
         // Recursive call for the
