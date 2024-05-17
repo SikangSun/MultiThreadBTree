@@ -698,7 +698,7 @@ int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low
 
 
                 #ifdef PV
-                    long cmp = word_cmp(header, key, keylen);
+                    long cmp = word_cmp(header, key, keylen, cursor);
                     if (cmp != 0) break;
                 #else
                     if (char_cmp_new(key, PageOffset(cursor, header->key_offset),
@@ -806,7 +806,7 @@ int BPTree::search_in_node(Node *cursor, const char *key, int keylen,
        
 #ifndef TRACK_DISTANCE
     #ifdef PV
-        long cmp = word_cmp(header, key, keylen);
+        long cmp = word_cmp(header, key, keylen,cursor);
     #else
         int cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
                                keylen, header->key_len);
