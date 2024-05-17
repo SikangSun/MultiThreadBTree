@@ -382,8 +382,8 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         pkey_buf = new char[pkey_len + 1];
         strncpy(pkey_buf, node->prefix->addr, node->prefix->size);
         #ifdef PV
-            strncpy(pkey_buf + node->prefix->size, head_fr->key_prefix, PV_SIZE);
-            strcpy(pkey_buf + PV_SIZE + node->prefix->size, firstright);
+            memcpy(pkey_buf + node->prefix->size, head_fr->key_prefix, PV_SIZE);
+            memcpy(pkey_buf + PV_SIZE + node->prefix->size, firstright, head_fr->key_len - PV_SIZE);
         #else
             strcpy(pkey_buf + node->prefix->size, firstright);
         #endif
@@ -392,8 +392,9 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
         pkey_len = head_fr->key_len;
         pkey_buf = new char[pkey_len + 1];
         #ifdef PV
-            strncpy(pkey_buf, head_fr->key_prefix, PV_SIZE);
-            strcpy(pkey_buf + PV_SIZE, firstright);
+            memcpy(pkey_buf, head_fr->key_prefix, PV_SIZE);
+            memcpy(pkey_buf + PV_SIZE, firstright, head_fr->key_len - PV_SIZE);
+            pkey_buf[pkey_len] = '\0';
         #else
             strcpy(pkey_buf, firstright);
         #endif
@@ -556,8 +557,8 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
             s = new char[s_len + pfxlen + 1];
             strncpy(s, node->prefix->addr, pfxlen);
             #ifdef PV
-                strncpy(s + pfxlen, head_fr->key_prefix, min(s_len, PV_SIZE));
-                if (s_len > PV_SIZE) strncpy(s + pfxlen + PV_SIZE, firstright, s_len - PV_SIZE);
+                memcpy(s + pfxlen, head_fr->key_prefix, PV_SIZE);
+                if (s_len > PV_SIZE) memcpy(s + pfxlen + PV_SIZE, firstright, s_len - PV_SIZE);
             #else
                 strncpy(s + pfxlen, firstright, s_len);
             #endif
@@ -566,8 +567,8 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         else {
             s = new char[s_len + 1];
             #ifdef PV
-                strncpy(s, head_fr->key_prefix, min(s_len, PV_SIZE));
-                if (s_len > PV_SIZE) strncpy(s + PV_SIZE, firstright, s_len - PV_SIZE); //copy until nullbyte
+                memcpy(s, head_fr->key_prefix, PV_SIZE);
+                if (s_len > PV_SIZE) memcpy(s + PV_SIZE, firstright, s_len - PV_SIZE); //copy until nullbyte
             #else
                 strncpy(s, firstright, s_len);
             #endif
@@ -580,8 +581,8 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
             s = new char[s_len + 1];
             strncpy(s, node->prefix->addr, node->prefix->size);
             #ifdef PV
-                strncpy(s + node->prefix->size, head_fr->key_prefix, PV_SIZE); //prefix
-                strcpy(s + PV_SIZE + node->prefix->size, firstright); //suffix
+                memcpy(s + node->prefix->size, head_fr->key_prefix, PV_SIZE); //prefix
+                memcpy(s + PV_SIZE + node->prefix->size, head_fr->key_len - PV_SIZE); //suffix
             #else
                 strcpy(s + node->prefix->size, firstright);
             #endif
@@ -590,12 +591,13 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
             s_len = head_fr->key_len;
             s = new char[s_len + 1];
             #ifdef PV
-                strncpy(s, head_fr->key_prefix,PV_SIZE);
-                strcpy(s + PV_SIZE, firstright); //copy until nullbyte
+                memcpy(s, head_fr->key_prefix,PV_SIZE);
+                memcpy(s + PV_SIZE, firstright, head_fr->key_len - PV_SIZE); //copy until nullbyte
             #else
                 strcpy(s, firstright);
             #endif
         }
+        s[s_len] = '\0';
     }
     newsplit.promotekey.addr = s;
     newsplit.promotekey.size = s_len;
