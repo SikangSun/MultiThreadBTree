@@ -187,7 +187,7 @@ inline char* construct_promotekey_head(Node* cursor, char* prefix, char* suffix,
     int roundedkeylen = keylen + (mod > 0 ? mod : 0);
     char *result = new char[roundedkeylen + 1];
     memset(result, 0, roundedkeylen + 1);
-    memset(result, cursor->prefix->addr, size);
+    memcpy(result, cursor->prefix->addr, size);
     memcpy(result + size, prefix, PV_SIZE);
     if (roundedkeylen > PV_SIZE + size) memcpy(result + size + PV_SIZE, suffix, roundedkeylen - PV_SIZE - size);
     //copy until the end length
