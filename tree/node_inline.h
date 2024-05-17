@@ -165,10 +165,11 @@ inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) 
             cmp = *(int *)(key + idx) - *(int*)(suffix + idx);
             if (cmp != 0) return cmp;
         }
+        cmp = keylen - header->key_len;
     }
     else if (cmp == 0) return keylen - header->key_len;
     /* Contents are equal up to the smallest length. */
-    return keylen - header->key_len;
+    return cmp;
 }
 
 
