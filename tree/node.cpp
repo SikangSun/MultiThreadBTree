@@ -20,6 +20,12 @@ Node::Node() {
     IS_LEAF = true;
     prev = nullptr;
     next = nullptr;
+
+#ifdef UBS
+    I = 0;
+    Ip = 0;
+    firstL = 0;
+#endif
 }
 
 // Destructor of Node
@@ -144,20 +150,34 @@ NodePkB::~NodePkB() {
 }
 
 void printKeys(Node *node, bool compressed) {
+    // if (node->IS_LEAF) return;
+    //      cout << "\n";
     if (compressed && node->prefix->addr)
         cout << node->prefix->addr << ": ";
     for (int i = 0; i < node->size; i++) {
         Stdhead *head = GetHeaderStd(node, i);
 
         if (compressed && node->prefix->addr) {
-            #ifdef PV 
+            #ifdef KN 
+                int l = head->key_len < PV_SIZE ? PV_SIZE : head->key_len;
+                char *prefix = new char[l + 1]; prefix[l] = '\0';
+                memcpy(prefix, head->key_prefix, PV_SIZE);
+                if (PV_SIZE < l) strncpy(prefix + PV_SIZE, PageOffset(node, head->key_offset), head->key_len - PV_SIZE);
+                char *conv = string_conv(prefix, l, 0);
+                cout << conv << ",";
+                delete[] prefix;
+                delete[] conv;
+            #elif defined PV 
             char prefix[PV_SIZE + 1] = {0};
-            strncpy(prefix, head->key_prefix,PV_SIZE);
+            strncpy(prefix, head->key_prefix, PV_SIZE);
             cout << prefix;
-            #endif
             cout  << PageOffset(node, head->key_offset) << ",";
+            #else
+            cout  << PageOffset(node, head->key_offset) << ",";
+            #endif
         }
         else {
+            
             cout << node->prefix->addr << PageOffset(node, head->key_offset) << ",";
         }
     }
