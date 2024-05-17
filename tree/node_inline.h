@@ -195,10 +195,6 @@ inline char* construct_promotekey_head(Node* cursor, char* prefix, char* suffix,
     return result;
 }
 
-inline char* construct_promotekey(char* dest, Node* node, char* prefix, char* suffix, int &keylen) {//head_comp
-    int len = keylen + 
-
-}
 
 inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) {
     int cmp = *(int*)key - *(int*)header->key_prefix;
