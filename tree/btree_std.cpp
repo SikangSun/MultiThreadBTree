@@ -197,6 +197,7 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
     }
     else {
         Item *newkey = &(childsplit->promotekey);
+        newkey->addr = string_conv(newkey->addr, (int&)newkey->size);
         int insertpos;
         bool equal = false;
         if (this->head_comp) {
