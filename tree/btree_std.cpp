@@ -179,6 +179,7 @@ void BPTree::insert_nonleaf(Node *node, Node **path,
 
 
             InsertNode(newRoot, 0, currsplit.left);
+            currsplit.promotekey.addr = string_conv(currsplit.promotekey.addr, currsplit.promotekey.size, 0);
             InsertKeyStd(newRoot, 0, currsplit.promotekey.addr, currsplit.promotekey.size);
             InsertNode(newRoot, 1, currsplit.right);
 
@@ -229,7 +230,7 @@ void BPTree::insert_leaf(Node *leaf, Node **path, int path_level, char *key, int
         if (leaf == _root) {
             Node *newRoot = new Node();
 
-
+            split.promotekey.addr = string_conv(split.promotekey.addr, split.promotekey.size);
             InsertNode(newRoot, 0, split.left);
             InsertKeyStd(newRoot, 0, split.promotekey.addr, split.promotekey.size);
             InsertNode(newRoot, 1, split.right);
