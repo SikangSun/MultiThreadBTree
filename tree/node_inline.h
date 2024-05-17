@@ -142,7 +142,8 @@ inline void word_conv_store(char* src, char* dest) { //int length only for now
 
 
 inline char* string_conv(const char* key, int &keylen) {//unnormalized to normalized
-    keylen = keylen + (PV_SIZE - keylen % PV_SIZE);
+    int mod = keylen % PV_SIZE;
+    keylen = keylen + (mod > 0 ? mod : 0);
 
     char *result = new char[keylen + 1];
     memset(result, 0, keylen + 1);
