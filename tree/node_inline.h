@@ -158,7 +158,7 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
 
 inline char* round_fixed_length(const char* key, int &keylen) {
     int mod = keylen % PV_SIZE;
-    if (mod == 0) return key;
+    if (mod == 0) return (char*)key;
     int oglen = keylen;
     keylen = keylen + mod;
     char *result = new char[keylen + 1];
