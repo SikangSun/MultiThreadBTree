@@ -150,11 +150,12 @@ inline void word_conv_store(char* src, char* dest) { //int length only for now
 
 inline char* string_conv(const char* key, int &keylen) {//unnormalized to normalized
     int mod = keylen % PV_SIZE;
+    int oglen = keylen;
     keylen = keylen + (mod > 0 ? PV_SIZE - mod : 0);
 
     char *result = new char[keylen + PV_SIZE + 1]; //pad zeroes
     memset(result, 0, keylen + 1 + PV_SIZE);
-    strcpy(result, key);
+    memcpy(result, key, oglen);
     char *pointer = result;
     for (int i = 0; i < keylen; i += PV_SIZE, pointer += PV_SIZE) {
         word_conv_store(pointer, pointer);
