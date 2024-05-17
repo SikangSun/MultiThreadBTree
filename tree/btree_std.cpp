@@ -582,7 +582,7 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
             strncpy(s, node->prefix->addr, node->prefix->size);
             #ifdef PV
                 memcpy(s + node->prefix->size, head_fr->key_prefix, PV_SIZE); //prefix
-                memcpy(s + PV_SIZE + node->prefix->size, head_fr->key_len - PV_SIZE); //suffix
+                memcpy(s + PV_SIZE + node->prefix->size, fristright, head_fr->key_len - PV_SIZE); //suffix
             #else
                 strcpy(s + node->prefix->size, firstright);
             #endif
