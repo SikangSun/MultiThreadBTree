@@ -101,13 +101,17 @@ inline void CopyToNewPageStd(Node *nptr, int low, int high, char *newbase, uint1
         Stdhead *newhead = (Stdhead *)(newbase + MAX_SIZE_IN_BYTES
                                        - (newidx + 1) * sizeof(Stdhead));
         int key_len = oldhead->key_len;
+
+
         #ifdef PV
             char *presuf = new char[oldhead->key_len + 1]; //extract entire key
             presuf[oldhead->key_len + 1] = '\0';
-            strncpy(presuf, oldhead->key_prefix, PV_SIZE);
-            strncpy(presuf + PV_SIZE, PageOffset(nptr, oldhead->key_offset), oldhead->key_len < PV_SIZE ? 0 :  oldhead->key_len);
+            memcpy(presuf, oldhead->key_prefix, PV_SIZE);
+            memcpy(presuf + PV_SIZE, PageOffset(nptr, oldhead->key_offset), oldhead->key_len < PV_SIZE ? 0 :  oldhead->key_len);
+            int numOfNull = 0;
+            for (int i = 0; i < PV_SIZE; i++) {
 
-
+            }
             newhead->key_len = oldhead->key_len - cutoff;
             newhead->key_offset = top;
             memset(newhead->key_prefix, 0, PV_SIZE); //cutoff can't be longer than length right? yes
@@ -171,12 +175,15 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
 
 inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
     int mod = keylen % PV_SIZE;
-    int roundedkeylen = keylen + (mod > 0 ? PV_SIZE - mod : 0);
+    int nullbytenum = mod > 0 ? PV_SIZE - mod : 0;
+    int roundedkeylen = keylen + nullbytenum;
     char *result = new char[roundedkeylen + 1];
     memset(result, 0, roundedkeylen + 1);
     memcpy(result, prefix, PV_SIZE);
     if (roundedkeylen > PV_SIZE) memcpy(result + PV_SIZE, suffix, roundedkeylen - PV_SIZE);
-
+    for (int i = 0; i < nullbytenum; i++) {
+        result[roundedkeylen - PV_SIZE + i] = '\0';
+    } 
     keylen = roundedkeylen;
     return result;
 }
@@ -184,13 +191,17 @@ inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//as
 inline char* construct_promotekey_head(Node* cursor, char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
     int size = cursor->prefix->size;
     int mod = (size + keylen) % PV_SIZE;
-    int roundedkeylen = keylen + (mod > 0 ? mod : 0);
+    int nullbytenum = mod > 0 ? PV_SIZE - mod : 0;
+    int roundedkeylen = keylen + nullbytenum;
     char *result = new char[roundedkeylen + 1];
     memset(result, 0, roundedkeylen + 1);
     memcpy(result, cursor->prefix->addr, size);
     memcpy(result + size, prefix, PV_SIZE);
     if (roundedkeylen > PV_SIZE + size) memcpy(result + size + PV_SIZE, suffix, roundedkeylen - PV_SIZE - size);
     //copy until the end length
+    for (int i = 0; i < nullbytenum; i++) {
+        result[roundedkeylen - PV_SIZE + i] = '\0';
+    } 
     keylen = roundedkeylen;
     return result;
 }
