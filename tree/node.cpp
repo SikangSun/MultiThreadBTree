@@ -163,7 +163,7 @@ void printKeys(Node *node, bool compressed) {
                 char *prefix = new char[l + 1]; prefix[l] = '\0';
                 memcpy(prefix, head->key_prefix, PV_SIZE);
                 if (PV_SIZE < l) strncpy(prefix + PV_SIZE, PageOffset(node, head->key_offset), head->key_len - PV_SIZE);
-                char *conv = string_conv(prefix, l, 0);
+                char *conv = string_conv(prefix, l);
                 cout << conv << ",";
                 delete[] prefix;
                 delete[] conv;
