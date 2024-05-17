@@ -158,20 +158,20 @@ void printKeys(Node *node, bool compressed) {
         Stdhead *head = GetHeaderStd(node, i);
 
         if (compressed && node->prefix->addr) {
-            // #ifdef KN 
-            //     int l = head->key_len < PV_SIZE ? PV_SIZE : head->key_len;
-            //     char *prefix = new char[l + 1]; prefix[l] = '\0';
-            //     memcpy(prefix, head->key_prefix, PV_SIZE);
-            //     if (PV_SIZE < l) strncpy(prefix + PV_SIZE, PageOffset(node, head->key_offset), head->key_len - PV_SIZE);
-            //     char *conv = string_conv(prefix, l);
-            //     cout << conv << ",";
-            //     delete[] prefix;
-            //     delete[] conv;
-            #if defined PV 
+            #ifdef KN 
+                int l = head->key_len < PV_SIZE ? PV_SIZE : head->key_len;
+                char *prefix = new char[l + 1]; prefix[l] = '\0';
+                memcpy(prefix, head->key_prefix, PV_SIZE);
+                if (PV_SIZE < l) strncpy(prefix + PV_SIZE, PageOffset(node, head->key_offset), head->key_len - PV_SIZE);
+                char *conv = string_conv(prefix, l);
+                cout << conv << ",";
+                delete[] prefix;
+                delete[] conv;
+            #elif defined PV 
             char prefix[PV_SIZE + 1] = {0};
-            memcpy(prefix, head->key_prefix, PV_SIZE);
+            strncpy(prefix, head->key_prefix, PV_SIZE);
             cout << prefix;
-            cout  << PageOffset(node, head->key_offset) << ",";//last byte omitted
+            cout  << PageOffset(node, head->key_offset) << ",";
             #else
             cout  << PageOffset(node, head->key_offset) << ",";
             #endif
