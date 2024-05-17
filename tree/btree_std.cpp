@@ -378,10 +378,10 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
     int pkey_len = head_fr->key_len;
     char *pkey_buf;
     if (this->head_comp && node->prefix->size) {
-        pkey_buf = construct_promotekey_head(node, header->key_prefix, firstright, pkey_len)
+        pkey_buf = construct_promotekey_head(node, header_fr->key_prefix, firstright, pkey_len)
     }
     else {
-        pkey_buf = construct_promotekey(head_fr->key_prefix, firstright, pkey_len);
+        pkey_buf = construct_promotekey(header_fr->key_prefix, firstright, pkey_len);
     }
     newsplit.promotekey.addr = pkey_buf;
     newsplit.promotekey.size = pkey_len;
@@ -537,17 +537,17 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
                                      head_ll->key_len, head_fr->key_len);
 #endif
         if (this->head_comp && node->prefix->size) {
-            s =construct_promotekey_head(node, header->key_prefix, firstright, s_len)
+            s =construct_promotekey_head(node, header_fr->key_prefix, firstright, s_len)
         }
         else {
-            s = construct_promotekey(head_fr->key_prefix, firstright, s_len);
+            s = construct_promotekey(header_fr->key_prefix, firstright, s_len);
         }
 
     }
     else {
         s_len = head_fr->key_len;
         if (this->head_comp && node->prefix->size) {
-            s = construct_promotekey_head(node, header->key_prefix, firstright, s_len)
+            s = construct_promotekey_head(node, header_fr->key_prefix, firstright, s_len)
         }
         else {
             s = construct_promotekey(head_fr->key_prefix, firstright, s_len);
