@@ -161,8 +161,8 @@ inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) 
     int cmp = *(int*)key - *(int*)header->key_prefix;
     if (cmp == 0 && keylen > PV_SIZE && header->key_len > PV_SIZE) {
         char *suffix = PageOffset(cursor, header->key_offset);
-        for (int idx = 1; idx < min((int)header->key_len, keylen); idx += 4) {
-            cmp = *(int *)(key + idx * PV_SIZE) - *(int*)(suffix + idx * PV_SIZE);
+        for (int idx = 4; idx < min((int)header->key_len, keylen); idx += 4) {
+            cmp = *(int *)(key + idx) - *(int*)(suffix + idx);
             if (cmp != 0) return cmp;
         }
     }
