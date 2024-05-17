@@ -22,10 +22,10 @@ char *tail_compress(const char *lastleft, const char *firstright, int len_ll, in
 char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix, const char *rightsuffix, int len_ll, int len_fr) {
     char *left = new char[len_ll + 1];
     char *right = new char[len_fr + 1];
-    strncpy(left, leftprefix, PV_SIZE);
-    strcpy(left + PV_SIZE, leftsuffix);
-    strncpy(right, rightprefix, PV_SIZE);
-    strcpy(right + PV_SIZE, rightsuffix);
+    memcpy(left, leftprefix, PV_SIZE);
+    memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
+    memcpy(right, rightprefix, PV_SIZE);
+    memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
     return tail_compress(left, right, len_ll, len_fr);
 }
 
@@ -40,10 +40,10 @@ int tail_compress_length(const char *lastleft, const char *firstright, int len_l
 int tail_compress_length(char *leftprefix, char *rightprefix, const char *leftsuffix, const char *rightsuffix, int len_ll, int len_fr) {
     char *left = new char[len_ll + 1];
     char *right = new char[len_fr + 1];
-    strncpy(left, leftprefix, PV_SIZE);
-    strcpy(left + PV_SIZE, leftsuffix);
-    strncpy(right, rightprefix, PV_SIZE);
-    strcpy(right + PV_SIZE, rightsuffix);
+    memcpy(left, leftprefix, PV_SIZE);
+    memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
+    memcpy(right, rightprefix, PV_SIZE);
+    memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
     return tail_compress_length(left, right, len_ll, len_fr);
 }
 
