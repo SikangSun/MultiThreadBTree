@@ -159,8 +159,8 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
 inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) {
     int cmp = *(int*)key - *(int*)header->prefix;
     if (cmp == 0 && keylen > PV_SIZE && header->key_len > PV_SIZE) {
-        char *suffix = PageOffset(cursor, header->offset);
-        for (int idx = 1; idx < min(header->key_len, key_len); idx += 4) {
+        char *suffix = PageOffset(cursor, header->key_offset);
+        for (int idx = 1; idx < min(header->key_len, keylen); idx += 4) {
             cmp = *(int *)(key + idx * PV_SIZE) - *(int*)(suffix + idx * PV_SIZE);
             if (cmp != 0) return cmp;
         }
