@@ -143,7 +143,7 @@ inline void word_conv_store(char* src, char* dest) { //int length only for now
 
 inline char* string_conv(const char* key, int &keylen) {//unnormalized to normalized
     int mod = keylen % PV_SIZE;
-    keylen = keylen + (mod > 0 ? mod : 0);
+    keylen = keylen + (mod > 0 ? PV_SIZE - mod : 0);
 
     char *result = new char[keylen + 1];
     memset(result, 0, keylen + 1);
@@ -171,7 +171,7 @@ inline char* string_conv(const char* key, int &keylen) {//unnormalized to normal
 
 inline char* construct_promotekey(char* prefix, char* suffix, int &keylen) {//assume header is always larger than keylen b/c compression
     int mod = keylen % PV_SIZE;
-    int roundedkeylen = keylen + (mod > 0 ? mod : 0);
+    int roundedkeylen = keylen + (mod > 0 ? PV_SIZE - mod : 0);
     char *result = new char[roundedkeylen + 1];
     memset(result, 0, roundedkeylen + 1);
     memcpy(result, prefix, PV_SIZE);
