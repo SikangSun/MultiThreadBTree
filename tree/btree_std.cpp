@@ -375,7 +375,7 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
 
     Stdhead *head_fr = GetHeaderStd(node, split);
     char *firstright = PageOffset(node, head_fr->key_offset);
-    int pkey_len = head_fr->key_len;
+    int pkey_len = head_fr->key_len; //this is wrong no?
     char *pkey_buf;
     if (this->head_comp && node->prefix->size) {
         pkey_buf = construct_promotekey_head(node, head_fr->key_prefix, firstright, pkey_len);
