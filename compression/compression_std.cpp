@@ -33,9 +33,9 @@ char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix,
 int tail_compress_length(const char *lastleft, const char *firstright, int len_ll, int len_fr) {
 #ifdef KN
 int idx = 0;
-for (int i = 0; i < min(len_ll, len_fr) / PV_SIZE; i++) {
+for (int i = 0; i < min(len_ll, len_fr) / PV_SIZE; i += i == 0 ? 3 : 4) {
     for (int j = 3; j >= 0; j--) {
-        if (lastleft[i * PV_SIZE + j] != firstright[i * PV_SIZE + j]) return len_fr > idx ? ++idx : idx;
+        if (lastleft[i + j] != firstright[i + j]) return len_fr > idx ? ++idx : idx;
         idx++;
     }
 }
