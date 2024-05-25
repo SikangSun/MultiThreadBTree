@@ -890,9 +890,9 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
     // the last node of
     // the exploring depth
     else if (isLast) {
-        cout << "+--- ";
+        // cout << "+--- ";
         printKeys(x, compressed);
-        cout << endl;
+        // cout << endl;
 
 
         // No more childrens turn it
@@ -900,9 +900,9 @@ void BPTree::printTree(Node *x, vector<bool> flag, bool compressed, int depth,
         flag[depth] = false;
     }
     else {
-        cout << "+--- ";
+        // cout << "+--- ";
         printKeys(x, compressed);
-        cout << endl;
+        // cout << endl;
     }
 
 
