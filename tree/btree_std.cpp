@@ -424,7 +424,7 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
             // Assign the previous prefix to the new right node
             if (node->prefix->size > 0) {
                 char *newpfx = new char[node->prefix->size + 1];
-                strcpy(newpfx, node->prefix->addr);
+                memcpy(newpfx, node->prefix->addr, node->prefix->size);
                 UpdatePfxItem(right, newpfx, node->prefix->size, true);
             }
             CopyToNewPageStd(node, split + 1, node->size, right->base, 0, right->space_top);
