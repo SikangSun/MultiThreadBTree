@@ -164,7 +164,7 @@ void printKeys(Node *node, bool compressed) {
                 memcpy(prefix, head->key_prefix, PV_SIZE);
                 if (PV_SIZE < l) memcpy(prefix + PV_SIZE, PageOffset(node, head->key_offset), head->key_len - PV_SIZE);
                 char *conv = string_conv(prefix, l);
-                cout << conv << ",";
+                cout << conv << '(' << head->key_len << ')' << ",";
                 delete[] prefix;
                 delete[] conv;
             #elif defined PV 
