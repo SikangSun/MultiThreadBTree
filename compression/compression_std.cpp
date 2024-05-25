@@ -34,7 +34,7 @@ int tail_compress_length(const char *lastleft, const char *firstright, int len_l
 #ifdef KN
 int idx = 0;
 for (int i = 0; i < min(len_ll, len_fr) / PV_SIZE; i++) {
-    int word_index = i == 0 ? i * PV_SIZE : i * PV_SIZE - 1;
+    int word_index = i * PV_SIZE;
     for (int j = 3; j >= 0; j--) {
         if (lastleft[word_index + j] != firstright[word_index + j]) return len_fr > idx ? ++idx : idx;
         idx++;
