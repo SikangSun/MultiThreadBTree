@@ -23,9 +23,9 @@ char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix,
     char *left = new char[len_ll + 1];
     char *right = new char[len_fr + 1];
     memcpy(left, leftprefix, PV_SIZE);
-    memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
+    if (len_ll > PV_SIZE) memcpy(left + PV_SIZE, leftsuffix, len_ll - PV_SIZE);
     memcpy(right, rightprefix, PV_SIZE);
-    memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
+    if (len_fr > PV_SIZE) memcpy(right + PV_SIZE, rightsuffix, len_fr - PV_SIZE);
     left[len_ll] = '\0'; right[len_fr] = '\0';
     return tail_compress(left, right, len_ll, len_fr);
 }
@@ -33,9 +33,10 @@ char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix,
 int tail_compress_length(const char *lastleft, const char *firstright, int len_ll, int len_fr) {
 #ifdef KN
 int idx = 0;
-for (int i = 0; i < min(len_ll, len_fr) / PV_SIZE; i += i == 0 ? 3 : 4) {
+for (int i = 0; i < min(len_ll, len_fr) / PV_SIZE; i++) {
+    int word_index = i == 0 ? i * PV_SIZE : i * PV_SIZE - 1;
     for (int j = 3; j >= 0; j--) {
-        if (lastleft[i + j] != firstright[i + j]) return len_fr > idx ? ++idx : idx;
+        if (lastleft[word_index + j] != firstright[word_index + j]) return len_fr > idx ? ++idx : idx;
         idx++;
     }
 }
