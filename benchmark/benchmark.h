@@ -70,7 +70,7 @@ public:
 
     bool Search(const std::vector<char *> &values) override {
         int count = 0;
-        for (uint32_t i = 0; i < values.size(); i++)
+        for (uint32_t i = 0; i < values.size(); i++) {
             if (i == 4834) 
                 cout << "check this";
             if (_tree->search(values.at(i)) == -1) {
@@ -85,6 +85,7 @@ public:
                 // return false;
                 count++;
             }
+        }
         cout << "count: " << count << endl;
 #ifdef TRACK_DISTANCE
         cout << "move times: " << _tree->cmp_count << endl
