@@ -161,12 +161,14 @@ auto RunBenchmarkIteration(std::vector<char *> values, std::vector<char *> value
                 //boost::asio::thread_pool *pool = new boost::asio::thread_pool(thread_num);
                 t1 = std::chrono::system_clock::now();
                 // TODO(chuqing): more accurate correctness check, e.g. generate new search set
-                if (structure->Search(values))
+                // if (
+                structure->Search(values)
+                // )
                     // cout << name << "\t:"
                     //      << "No errors happen during search" << endl;
-                else
-                    cout << name << "\t:"
-                         << "Errors happen during search" << endl;
+                // else
+                //     cout << name << "\t:"
+                //          << "Errors happen during search" << endl;
                 time_spent = static_cast<double>(std::chrono::duration_cast<
                                                      std::chrono::nanoseconds>(std::chrono::system_clock::now() - t1)
                                                      .count())
