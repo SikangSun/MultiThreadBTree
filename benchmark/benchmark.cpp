@@ -35,7 +35,7 @@ DatasetTypes dataset;
 uint32_t size = 0;
 uint32_t key_numbers = 0;
 uint32_t iterations = 0;
-double warmup_split_ratio = 0.2;
+double warmup_split_ratio = 0.01;
 string dataset_file_name = "";
 string output_path = "";
 bool write_to_file = false;
