@@ -150,8 +150,8 @@ auto RunBenchmarkIteration(std::vector<char *> values,
                                      .count())
                              / 1e9;
                 if (noerror_s)
-                    cout << name << "\t:"
-                         << "No errors happen during search" << endl;
+                    // cout << name << "\t:"
+                    //      << "No errors happen during search" << endl;
                 else
                     cout << name << "\t:"
                          << "Errors happen during search" << endl;

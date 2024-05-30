@@ -71,7 +71,7 @@ public:
                 // return false;
                 count++;
             }
-        cout << "count: " << count << endl;
+        // cout << "count: " << count << endl;
 #ifdef TRACK_DISTANCE
         cout << "move times: " << _tree->cmp_count << endl
              << "total distance: " << _tree->cmp_length << endl

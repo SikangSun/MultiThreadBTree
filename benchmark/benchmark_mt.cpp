@@ -162,8 +162,8 @@ auto RunBenchmarkIteration(std::vector<char *> values, std::vector<char *> value
                 t1 = std::chrono::system_clock::now();
                 // TODO(chuqing): more accurate correctness check, e.g. generate new search set
                 if (structure->Search(values))
-                    cout << name << "\t:"
-                         << "No errors happen during search" << endl;
+                    // cout << name << "\t:"
+                    //      << "No errors happen during search" << endl;
                 else
                     cout << name << "\t:"
                          << "Errors happen during search" << endl;

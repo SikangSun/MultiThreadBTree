@@ -7,7 +7,7 @@
 // #define MULTICOL_LHKEY_SAVE_SPACE //disable means store full lhkey
 #define MEMDEBUG
 #define CHARALL
-#define SINGLE_DEBUG
+// #define SINGLE_DEBUG
 #define VERBOSE_PRINT // enable to write some intermediate results to output file (if set -o)
 // #define WT_OPTIM   // enable for prefixstart
 // #define WTCACHE
