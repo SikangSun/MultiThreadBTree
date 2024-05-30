@@ -149,12 +149,12 @@ auto RunBenchmarkIteration(std::vector<char *> values,
                                      std::chrono::system_clock::now() - t1)
                                      .count())
                              / 1e9;
-                if (noerror_s)
+                // if (noerror_s)
                     // cout << name << "\t:"
                     //      << "No errors happen during search" << endl;
-                else
-                    cout << name << "\t:"
-                         << "Errors happen during search" << endl;
+                // else
+                //     cout << name << "\t:"
+                //          << "Errors happen during search" << endl;
                 break;
             }
             case BenchmarkTypes::RANGE: {
