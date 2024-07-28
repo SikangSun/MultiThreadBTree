@@ -210,19 +210,25 @@ inline char* construct_promotekey_head(Node* cursor, char* prefix, char* suffix,
     return result;
 }
 
+inline long comparison_func(Stdhead* header,const char* key, int keylen, Node *cursor) {
+    return *(int *)(key) - *(int*)(header->key_prefix);
+}
 
 inline long word_cmp(Stdhead* header,const char* key, int keylen, Node *cursor) {
-    int cmp = *(int*)key - *(int*)header->key_prefix;
-    if (cmp == 0 && keylen > PV_SIZE && header->key_len > PV_SIZE) {
+    long cmp = comparison_func(header, key, keylen, cursor);
+    if (cmp != 0) return cmp;
+
+    if (keylen > PV_SIZE && header->key_len > PV_SIZE) {
         char *suffix = PageOffset(cursor, header->key_offset);
         key += PV_SIZE;
-        for (int idx = 0; idx < min((int)header->key_len - PV_SIZE, keylen - PV_SIZE); idx += 4) {
+        int len = min((int)header->key_len - PV_SIZE, keylen - PV_SIZE);
+        for (int idx = 0; idx < len; idx += 4) {
             cmp = *(int *)(key + idx) - *(int*)(suffix + idx);
             if (cmp != 0) return cmp;
         }
-        cmp = keylen - header->key_len;
     }
-    else if (cmp == 0) return keylen - header->key_len;
+    cmp = keylen - header->key_len;
+
     /* Contents are equal up to the smallest length. */
     return cmp;
 }
