@@ -314,7 +314,6 @@ splitReturn_new BPTree::split_nonleaf(Node *node, int pos, splitReturn_new *chil
     bool equal = false;
 
     if (this->head_comp) { 
-        if (newkey_len - node->prefix->size < PV_SIZE)
         insertpos = search_insert_pos(node, newkey + node->prefix->size,
                                       newkey_len - node->prefix->size,
                                       0, node->size - 1, equal);
@@ -654,7 +653,7 @@ int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low
     } 
     else return cmp > 0 ? pos + 1 : pos;
 #else
-    assert(keylen >= PV_SIZE);
+    // assert(keylen >= PV_SIZE);
     while (low <= high) {
         int mid = low + (high - low) / 2;
 
@@ -778,7 +777,7 @@ int BPTree::search_in_node(Node *cursor, const char *key, int keylen,
     if (cmp == 0) return isleaf ? pos : pos + 1; //right node of key
     else return isleaf ? -1 : cmp > 0 ? pos + 1 : pos; //not found in leaf, or branch node right child
 #else
-    assert(keylen >= PV_SIZE);
+    // assert(keylen >= PV_SIZE);
     while (low <= high) {
         int mid = low + (high - low) / 2;
         Stdhead *header = GetHeaderStd(cursor, mid);

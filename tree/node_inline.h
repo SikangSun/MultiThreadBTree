@@ -53,7 +53,6 @@ inline void calculateBSMetaData(Node *node) {
 }
 #endif
 inline void InsertKeyStd(Node *nptr, int pos, const char *k, uint16_t klen) {
-    klen = klen < PV_SIZE ? PV_SIZE : klen; //invariant: must be at least length 4
     // shift the headers
     for (int i = nptr->size; i > pos; i--) {
         memcpy(GetHeaderStd(nptr, i), GetHeaderStd(nptr, i - 1), sizeof(Stdhead));
