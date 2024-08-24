@@ -30,8 +30,8 @@ char *tail_compress(char *leftprefix, char *rightprefix, const char *leftsuffix,
     movNorm(rightprefix, right);
     strcpy(right + PV_SIZE, rightsuffix);
     char* ret = tail_compress(left, right, len_ll, len_fr);
-    delete left;
-    delete right;
+    delete[] left;
+    delete[] right;
     return ret;
 #endif
 }
@@ -53,8 +53,8 @@ int tail_compress_length(char *leftprefix, char *rightprefix, const char *leftsu
     movNorm(rightprefix, right);
     strcpy(right + PV_SIZE, rightsuffix);
     int ret = tail_compress_length(left, right, len_ll, len_fr); //used in finding the length of tail comp key
-    delete left;
-    delete right;
+    delete[] left;
+    delete[] right;
     return ret;
 #endif
 }
