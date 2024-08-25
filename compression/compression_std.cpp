@@ -49,9 +49,9 @@ int tail_compress_length(char *leftprefix, char *rightprefix, const char *leftsu
     char *left = new char[len_ll + 1];
     char *right = new char[len_fr + 1];
     movNorm(leftprefix, left);
-    strcpy(left + PV_SIZE, leftsuffix);
+    if (len_ll > PV_SIZE) strcpy(left + PV_SIZE, leftsuffix);
     movNorm(rightprefix, right);
-    strcpy(right + PV_SIZE, rightsuffix);
+    if (len_fr > PV_SIZE) strcpy(right + PV_SIZE, rightsuffix);
     int ret = tail_compress_length(left, right, len_ll, len_fr); //used in finding the length of tail comp key
     delete[] left;
     delete[] right;
