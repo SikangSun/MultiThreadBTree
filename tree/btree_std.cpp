@@ -1,6 +1,6 @@
 #include "btree_std.h"
 #include "../compression/compression_std.cpp"
-
+extern bool glob_insert;
 // Initialise the BPTree Node
 BPTree::BPTree(bool head_compression, bool tail_compression) {
     _root = new Node();
@@ -638,7 +638,7 @@ int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low
 #ifdef UBS
     // if (cursor->size == 0) return 0;
 
-    return unrolledBinarySearch(cursor, key, keylen, equal);
+    return unrolledBinarySearch(cursor, key, keylen, equal, true);
     // if (cmp == 0) {
     //    equal = true;
     //     while (pos < high) { //linear search
@@ -650,6 +650,7 @@ int BPTree::search_insert_pos(Node *cursor, const char *key, int keylen, int low
     // } 
 
 #else
+    // glob_insert = true;
     while (low <= high) {
         int mid = low + (high - low) / 2;
 
@@ -775,11 +776,12 @@ int BPTree::search_in_node(Node *cursor, const char *key, int keylen,
     // // if (cmp == 0) return pos; //branchless
     // else return isleaf ? -1 : pos; //not found in leaf, or branch node right child
 
-    return unrolledBinarySearch(cursor, key, keylen, isleaf);
+    return unrolledBinarySearch(cursor, key, keylen, isleaf, false);
 
 
 
 #else
+    // glob_insert = false;
     while (low <= high) {
         int mid = low + (high - low) / 2;
         Stdhead *header = GetHeaderStd(cursor, mid);

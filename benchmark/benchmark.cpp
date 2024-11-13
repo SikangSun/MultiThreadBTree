@@ -42,7 +42,10 @@ bool write_to_file = false;
 int column_num = 0;
 uint16_t max_keylen = 0;
 int range_num = 100; // Default value
-
+    //UBS testing
+    long insert_comp_count = 0;
+    long search_comp_count = 0;
+    bool glob_insert;
 const std::map<BenchmarkTypes, std::string> benchmarkStrMap{
     {BenchmarkTypes::INSERT, "insert"},
     {BenchmarkTypes::SEARCH, "search"},
@@ -56,9 +59,9 @@ const std::map<std::string, BenchmarkTypes> strBenchmarksMap{
     {"backward", BenchmarkTypes::BACKWARDSCAN}};
 
 const std::vector<std::tuple<std::string, Benchmark *>> kIndexStructures{
-    {"Btree-Std", new BPTreeStdBenchmark()},
-    {"Btree-Head", new BPTreeHeadCompBenchmark()},
-    {"Btree-Tail", new BPTreeTailCompBenchmark()},
+    // {"Btree-Std", new BPTreeStdBenchmark()},
+    // {"Btree-Head", new BPTreeHeadCompBenchmark()},
+    // {"Btree-Tail", new BPTreeTailCompBenchmark()},
     {"Btree-He+Tail", new BPTreeHeadTailCompBenchmark()},
     // {"Btree-WT", new BPTreeWTBenchmark()},
     // {"Btree-My", new BPTreeMyISAMBenchmark()},
@@ -349,6 +352,8 @@ void PerformanceBenchmarkResults(
 
 void TreeStatisticBenchmarkResults(
     std::vector<vector<TreeStatistics>> structure_benchmark_statistics) {
+    std::cout << "Insert Comp Num: " << insert_comp_count << std::endl;
+    std::cout << "Search Comp Num: " << search_comp_count << std::endl;     
     std::cout << "==============================================================="
                  "=================================================="
               << std::endl;

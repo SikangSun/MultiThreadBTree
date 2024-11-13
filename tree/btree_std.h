@@ -39,6 +39,7 @@ private:
     bool head_comp;
     bool tail_comp;
     int max_level;
+
     void insert_leaf(Node *leaf, Node **path, int path_level, char *key, int keylen);
     void insert_nonleaf(Node *node, Node **path, int pos,
                         splitReturn_new *childsplit);

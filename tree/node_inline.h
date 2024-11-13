@@ -3,6 +3,9 @@
 // #include "../utils/config.h"
 #include "../utils/compare.cpp"
 
+extern long insert_comp_count;
+extern long search_comp_count;
+extern bool glob_insert;
 #define NewPage() (new char[MAX_SIZE_IN_BYTES])
 #define SetEmptyPage(p) memset(p, 0, sizeof(char) * MAX_SIZE_IN_BYTES)
 #define BufTop(nptr) (nptr->base + nptr->space_top)
@@ -152,6 +155,7 @@ inline long word_cmp(Stdhead* header,const char* key, int keylen) {
 }
 
 long pvComp(Stdhead* header,const char* key, int keylen, Node *cursor) {
+    // glob_insert ? insert_comp_count++ : search_comp_count++; 
     long cmp = word_cmp(header, key, keylen);
     if (cmp == 0) {
         cmp = char_cmp_new(key, PageOffset(cursor, header->key_offset),
@@ -162,59 +166,175 @@ long pvComp(Stdhead* header,const char* key, int keylen, Node *cursor) {
 #endif
 //returns position
 #ifdef UBS
-inline int unrolledBinarySearch(Node *cursor, const char *key, int keylen, bool isleaf) {//cutoff is potential head_comp ignored bytes
+inline int unrolledBinarySearch(Node *cursor, const char *key, int keylen, bool isleaf, bool insert) {//cutoff is potential head_comp ignored bytes
 
 {//shar unroll
+    // glob_insert = insert;
     uint16_t delta = cursor->I; //delte is size, minus 1 for index //2^k, where k is floor(log cursor->size);
+    // cout << "D:" << delta <<" " ;
     Stdhead* low = GetHeadBase(cursor);
     Stdhead* org = low; //most right(largest is to the right)
     long cmp = -1;
-    if (delta != cursor->size && pvComp(low - delta, key, keylen, cursor) >= 0) { //initial probe cost
+    Stdhead* lastlow = NULL;
+    if (insert) {
+   if (delta != cursor->size && pvComp(low - delta, key, keylen, cursor) >= 0) { //initial probe cost
+        low = GetHeaderStd(cursor, cursor->Ip - 1);  //if K > Ki
+        delta = cursor->firstL;
+    }
+    delta /= 2;
+    switch (delta) {
+        // case 256:
+        //     if ((pvComp(low - 256, key, keylen, cursor)) >= 0) {
+        //         low -= 256;
+        //         lastlow = low;
+        //     }
+        case 128:
+            if ((pvComp(low - 128, key, keylen, cursor)) >= 0) {
+                low -= 128;
+                lastlow = low;
+            }
+        case 64:
+            if (( pvComp(low - 64, key, keylen, cursor)) >= 0) {
+                low -= 64;
+                lastlow = low;
+            }
+        case 32:
+            if ((pvComp(low - 32, key, keylen, cursor)) >= 0) {
+                low -= 32;
+                lastlow = low;
+            }
+        case 16:
+            if ((pvComp(low - 16, key, keylen, cursor)) >= 0) {
+                low -= 16;
+                lastlow = low;
+            }
+        case 8:
+            if ((pvComp(low - 8, key, keylen, cursor)) >= 0) {
+                low -= 8;
+                lastlow = low;
+            }
+        case 4:
+            if ((pvComp(low - 4, key, keylen, cursor)) >= 0) {
+                low -= 4;
+                lastlow = low;
+            }
+        case 2:
+            if ((pvComp(low - 2, key, keylen, cursor)) >= 0) {
+                low -= 2;
+                lastlow = low;
+            }
+        case 1: 
+            if ((pvComp(low - 1, key, keylen, cursor)) >= 0) {
+                low -= 1;
+                lastlow = low;
+            }
+            if (lastlow != low) {//even number has uneven split, sometimes needs extra comparison
+                if ((pvComp(low, key, keylen, cursor)) >= 0) low -= 1;
+            }
+            else {
+                low -= 1;
+            }
+        case 0:
+
+            break;
+    }
+
+    int result = org - low;
+    // if (cmp >= 0) {
+    // result++;
+    // }
+    // else if (cmp > 1) low -= 1;
+    // cout << result;
+    return isleaf ? -1 : (result);
+    }
+    else {//search
+
+    if (delta != cursor->size && (cmp = pvComp(low - delta, key, keylen, cursor)) >= 0) { //initial probe cost
+        if (cmp == 0) { 
+            low -= delta;
+            goto found;
+        }
         low = GetHeaderStd(cursor, cursor->Ip - 1);  //if K > Ki
         delta = cursor->firstL;
     }
     delta /= 2;
     switch (delta) {
         case 256:
-            if (pvComp(low - 256, key, keylen, cursor) >= 0)
-                low -= 256;
+            // if ((cmp = pvComp(low - 256, key, keylen, cursor)) >= 0) {
+            //     low -= 256;
+            //     lastlow = low;
+            //     if (cmp == 0) break;
+            // }
         case 128:
-            if (pvComp(low - 128, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 128, key, keylen, cursor)) >= 0) {
                 low -= 128;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 64:
-            if (pvComp(low - 64, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 64, key, keylen, cursor)) >= 0) {
                 low -= 64;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 32:
-            if (pvComp(low - 32, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 32, key, keylen, cursor)) >= 0) {
                 low -= 32;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 16:
-            if (pvComp(low - 16, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 16, key, keylen, cursor)) >= 0) {
                 low -= 16;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 8:
-            if (pvComp(low - 8, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 8, key, keylen, cursor)) >= 0) {
                 low -= 8;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 4:
-            if (pvComp(low - 4, key, keylen, cursor) >= 0)
+            if ((cmp = pvComp(low - 4, key, keylen, cursor)) >= 0) {
                 low -= 4;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 2:
-            if ((pvComp(low - 2, key, keylen, cursor)) >= 0)
+            if ((cmp = pvComp(low - 2, key, keylen, cursor)) >= 0) {
                 low -= 2;
+                lastlow = low;
+                if (cmp == 0) break;
+            }
         case 1: 
-            if ((pvComp(low - 1, key, keylen, cursor)) >= 0)
+            if ((cmp = pvComp(low - 1, key, keylen, cursor)) >= 0) {
                 low -= 1;
-            if ((cmp = pvComp(low, key, keylen, cursor)) >= 0)
+                lastlow = low;
+                if (cmp == 0) break;
+            }
+            if (lastlow != low) {//even number has uneven split, sometimes needs extra comparison
+                if ((cmp = pvComp(low, key, keylen, cursor)) >= 0) low -= 1;
+            }
+            else {
                 low -= 1;
+            }
         case 0:
+
             break;
     }
-    // for (delta /= 2; delta != 0; delta /= 2) {
-    //     if (pvComp(low - delta, key, keylen, cursor) >= 0)
-    //     low -= delta;
-    // }
+    found:
+    int result = org - low;
+    if (cmp == 0) {
+        //if (!isleaf) result++;
+        //    cout << result << '\n';
+        return result;
+    }
+    // else if (cmp > 1) low -= 1;
+    // cout << result << '\n';
+    return isleaf ? -1 : (result);
+    }
 
-    if (cmp == 0) return org - low;
-
-    return isleaf ? -1 : (org - low);;
 }
 
 // {//shar branchless
