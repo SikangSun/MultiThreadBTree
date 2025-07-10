@@ -508,7 +508,7 @@ splitReturn_new BPTree::split_leaf(Node *node, char *newkey, int newkey_len) {
         if (this->head_comp && node->prefix->size) {
             int pfxlen = node->prefix->size;
             // s = new char[s_len + pfxlen + 1];
-            s = allocSafeStr(s_len + pfxlen + 1);
+            s = allocSafeStr(s_len + pfxlen + 1);//kp
             strncpy(s, node->prefix->addr, pfxlen);
             #ifdef KP
                 // strncpy(s + pfxlen, head_fr->key_prefix, min(s_len, PV_SIZE));
